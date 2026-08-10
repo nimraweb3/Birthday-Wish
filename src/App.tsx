@@ -1,15 +1,69 @@
+import { useState } from "react";
+
+import BirthdayIntro from "./components/BirthdayIntro";
+import BirthdayBackground from "./components/BirthdayBackground";
 import Navbar from "./components/Navbar";
+import WishCards from "./components/WishCards";
+import MusicPlayer from "./components/MusicPlayer";
 
 function App() {
-  return (
-    <main className="min-h-screen bg-[#0c0708] text-white">
-      <Navbar />
+  const [introFinished, setIntroFinished] =
+    useState(false);
 
-      <section className="flex min-h-screen items-center justify-center">
-        <h1 className="text-4xl font-bold">
-          Azeen
-        </h1>
-      </section>
+  return (
+    <main
+      className="
+        relative
+        min-h-screen
+        overflow-x-hidden
+        bg-[#0c0708]
+      "
+    >
+      {/* =========================================
+          FRIEND PHOTO BACKGROUND
+      ========================================= */}
+
+      <BirthdayBackground
+        visible={introFinished}
+      />
+
+      {/* =========================================
+          MAIN WEBSITE
+      ========================================= */}
+
+      {introFinished && (
+        <div
+          className="
+            relative
+            z-10
+            min-h-screen
+          "
+        >
+          {/* NAVBAR */}
+
+          <Navbar />
+
+          {/* WISH CARDS */}
+
+          <WishCards />
+
+          {/* MUSIC PLAYER */}
+
+          <MusicPlayer />
+        </div>
+      )}
+
+      {/* =========================================
+          BIRTHDAY INTRO
+      ========================================= */}
+
+      {!introFinished && (
+        <BirthdayIntro
+          onComplete={() => {
+            setIntroFinished(true);
+          }}
+        />
+      )}
     </main>
   );
 }

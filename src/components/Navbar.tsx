@@ -1,248 +1,343 @@
-import { motion } from "framer-motion";
-import { ExternalLink, Music2 } from "lucide-react";
-
-import { useClock } from "../hooks/useClock";
-import { spotifyConfig } from "../data/spotify";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
-  const { time, date } = useClock();
+  const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
+
+  const [isFullscreen, setIsFullscreen] =
+    useState(false);
+
+  /*
+   * =====================================
+   * LIVE DATE + TIME
+   * =====================================
+   */
+
+  useEffect(() => {
+    const updateDateTime = () => {
+      const now = new Date();
+
+      setTime(
+        now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      );
+
+      setDate(
+        now.toLocaleDateString([], {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      );
+    };
+
+    updateDateTime();
+
+    const interval =
+      setInterval(updateDateTime, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  /*
+   * =====================================
+   * FULLSCREEN STATE
+   * =====================================
+   */
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(
+        document.fullscreenElement !== null
+      );
+    };
+
+    document.addEventListener(
+      "fullscreenchange",
+      handleFullscreenChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "fullscreenchange",
+        handleFullscreenChange
+      );
+    };
+  }, []);
+
+  /*
+   * =====================================
+   * TOGGLE FULLSCREEN
+   * =====================================
+   */
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.error(
+        "Fullscreen error:",
+        error
+      );
+    }
+  };
 
   return (
-    <motion.header
-      initial={{
-        opacity: 0,
-        y: -20,
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-      }}
-      transition={{
-        duration: 0.8,
-        ease: "easeOut",
-      }}
+    <nav
       className="
         fixed
+
         left-0
         right-0
         top-0
-        z-50
 
-        px-4
-        pt-4
+        z-[90]
 
-        sm:px-6
-        sm:pt-6
+        px-5
+        py-4
 
-        lg:px-8
+        sm:px-8
+        sm:py-5
       "
     >
-      <nav
+      <div
         className="
           mx-auto
+
           flex
           max-w-7xl
+
           items-center
           justify-between
 
-          rounded-full
+          rounded-2xl
 
           border
-          border-white/[0.10]
+          border-white/[0.08]
 
-          bg-black/[0.28]
+          bg-black/25
 
           px-4
           py-3
 
-          shadow-[0_12px_40px_rgba(0,0,0,0.25)]
+          shadow-[0_10px_40px_rgba(0,0,0,0.2)]
 
           backdrop-blur-xl
-
-          sm:px-6
-          sm:py-3.5
         "
       >
-        {/* =====================================
-            LEFT — BRAND MARK
-        ====================================== */}
 
-        <div className="flex items-center gap-3">
+        {/* =================================
+            DATE + TIME
+        ================================= */}
+
+        <div
+          className="
+            flex
+            items-center
+
+            gap-3
+          "
+        >
+
+          <div className="hidden sm:block">
+            <p
+              className="
+                text-[9px]
+
+                uppercase
+
+                tracking-[0.25em]
+
+                text-white/30
+              "
+            >
+              Date
+            </p>
+
+            <p
+              className="
+                mt-0.5
+
+                text-xs
+
+                text-white/70
+              "
+            >
+              {date}
+            </p>
+          </div>
+
           <div
             className="
+              hidden
+              h-7
+              w-px
+
+              bg-white/[0.08]
+
+              sm:block
+            "
+          />
+
+          <div>
+            <p
+              className="
+                text-[9px]
+
+                uppercase
+
+                tracking-[0.25em]
+
+                text-white/30
+              "
+            >
+              Time
+            </p>
+
+            <p
+              className="
+                mt-0.5
+
+                text-xs
+
+                tabular-nums
+
+                text-white/70
+              "
+            >
+              {time}
+            </p>
+          </div>
+
+        </div>
+
+
+        {/* =================================
+            RIGHT SIDE
+        ================================= */}
+
+        <div
+          className="
+            flex
+
+            items-center
+
+            gap-2
+          "
+        >
+
+          {/* INSTAGRAM */}
+
+          <a
+            href="https://instagram.com/YOUR_FRIEND_ID"
+            target="_blank"
+            rel="noreferrer"
+
+            className="
               flex
+
               h-9
               w-9
+
               items-center
               justify-center
 
               rounded-full
 
               border
-              border-white/[0.12]
+              border-white/[0.08]
 
-              bg-white/[0.06]
-
-              text-sm
-
-              text-white/80
-
-              shadow-inner
-              shadow-white/[0.04]
-            "
-          >
-            ✦
-          </div>
-
-          <span
-            className="
-              hidden
-
-              text-sm
-              font-medium
-              tracking-[0.18em]
-
-              text-white/70
-
-              sm:block
-            "
-          >
-            A
-          </span>
-        </div>
-
-        {/* =====================================
-            CENTER — DATE + TIME
-        ====================================== */}
-
-        <div
-          className="
-            absolute
-            left-1/2
-            -translate-x-1/2
-
-            text-center
-          "
-        >
-          <p
-            className="
-              text-[9px]
-              font-medium
-              uppercase
-              tracking-[0.28em]
-
-              text-white/40
-
-              sm:text-[10px]
-            "
-          >
-            {date}
-          </p>
-
-          <motion.p
-            key={time}
-            initial={{ opacity: 0.4 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="
-              mt-0.5
-
-              whitespace-nowrap
+              bg-white/[0.03]
 
               text-xs
-              font-medium
 
-              tabular-nums
+              text-white/50
 
-              text-white/80
+              transition-all
+              duration-300
 
-              sm:text-sm
+              hover:border-white/[0.16]
+
+              hover:bg-white/[0.08]
+
+              hover:text-white
+
+              hover:scale-105
             "
+            aria-label="Instagram"
           >
-            {time}
-          </motion.p>
-        </div>
+            ◎
+          </a>
 
-        {/* =====================================
-            RIGHT — SPOTIFY
-        ====================================== */}
 
-        <a
-          href={spotifyConfig.playlistUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="
-            group
+          {/* =================================
+              FULLSCREEN
+          ================================= */}
 
-            flex
-            items-center
-            gap-2
+          <button
+            type="button"
 
-            rounded-full
+            onClick={toggleFullscreen}
 
-            border
-            border-white/[0.10]
-
-            bg-white/[0.05]
-
-            px-3
-            py-2
-
-            text-xs
-            font-medium
-
-            text-white/70
-
-            transition-all
-            duration-300
-
-            hover:border-white/[0.20]
-            hover:bg-white/[0.10]
-            hover:text-white
-
-            sm:px-4
-          "
-        >
-          <span
             className="
               flex
-              h-5
-              w-5
+
+              h-9
+              w-9
+
               items-center
               justify-center
 
               rounded-full
 
-              bg-white/[0.08]
+              border
+              border-white/[0.08]
 
-              transition-transform
+              bg-white/[0.03]
+
+              text-white/50
+
+              transition-all
               duration-300
 
-              group-hover:scale-110
+              hover:border-white/[0.16]
+
+              hover:bg-white/[0.08]
+
+              hover:text-white
+
+              hover:scale-105
+
+              active:scale-90
             "
+
+            aria-label={
+              isFullscreen
+                ? "Exit fullscreen"
+                : "Enter fullscreen"
+            }
+
+            title={
+              isFullscreen
+                ? "Exit fullscreen"
+                : "Fullscreen"
+            }
           >
-            <Music2 size={11} />
-          </span>
+            {isFullscreen ? "⛶" : "⛶"}
+          </button>
 
-          <span className="hidden sm:block">
-            Spotify
-          </span>
+        </div>
 
-          <ExternalLink
-            size={12}
-            className="
-              opacity-50
-
-              transition-transform
-              duration-300
-
-              group-hover:translate-x-0.5
-              group-hover:-translate-y-0.5
-            "
-          />
-        </a>
-      </nav>
-    </motion.header>
+      </div>
+    </nav>
   );
 };
 
