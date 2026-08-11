@@ -23,7 +23,7 @@ function App() {
       {introDone && (
         <>
           <BirthdayBackground />
-          <Navbar instagramUrl="https://instagram.com/azeen_username" />
+          <Navbar instagramUrl="https://instagram.com/az___1204" />
           <Hero />
           <MemoryTicker />
           <ScrollAudio />

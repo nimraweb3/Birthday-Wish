@@ -10,8 +10,8 @@ export default function Hero() {
         transition={{ duration: 1, ease: "easeOut" }}
         className="text-center mb-12 sm:mb-16"
       >
-        <p className="font-sans text-xs tracking-[0.3em] text-white/50 mb-2">A FEW WORDS</p>
-        <h2 className="font-display text-3xl sm:text-4xl text-white">For You, Azeen</h2>
+        <p className="font-sans text-xs tracking-[0.3em] text-white/50 mb-2"> </p>
+        <h2 className="font-display text-3xl sm:text-4xl text-white"></h2>
       </motion.div>
 
       <WishCards />

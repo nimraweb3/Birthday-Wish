@@ -9,57 +9,57 @@ export const wishes: Wish[] = [
   {
     id: 1,
     number: "01",
-    title: "To Azeen",
+    title: "The Birthday Wish",
     message:
-      "Another year has passed, and somehow you've become even more you — brighter, sharper, more yourself than ever.",
+      "I just wish that life gives you everything your heart wants AZEEEN. I hope you get all the happiness, peace, and love you deserve and maybe, just maybe I get to be a part of it too.",
   },
   {
     id: 2,
     number: "02",
-    title: "The Constant",
+    title: "The Eyes",
     message:
-      "Through every chaotic phase and quiet season, you've stayed the one thing I never had to question.",
+      "How can someone’s eyes possibly leave me this mesmerized? I honestly don’t knw. I wish  your birthday and your life ahead are as beautiful as your eyes.",
   },
   {
     id: 3,
     number: "03",
-    title: "This Year",
+    title: "The Uncertainty",
     message:
-      "May this year bring you exactly what you've been chasing quietly, and none of what you've been carrying loudly.",
+      "I don't know what our future holds, but I hope when we eventually find out, it's something worth all the hoping..",
   },
   {
     id: 4,
     number: "04",
-    title: "Always",
+    title: "The Spark",
     message:
-      "Whatever changes around us, this stays the same — I'm rooting for you, today and every day after.",
+      "Azeeen hum dono me spark hai apko pata nahi q nahi feel hota.Maaan jaooooooo boht acha couple banay gai hum",
   },
   {
     id: 5,
     number: "05",
-    title: "The Laughs",
+    title: "The Comfort",
     message:
-      "Nobody else gets my humor the way you do — or makes me laugh at 2am over something completely stupid.",
+      "Idk why but talking to you and simply knowing you're there gives me so much comfort. Maybe that's why I want to experience all the little things with you  watching movies, eating noodles, reading books, or just sitting beside you doing nothing.",
   },
   {
     id: 6,
     number: "06",
-    title: "The Chaos",
+    title: "The Dreams",
     message:
-      "Every plan we've ever made has gone sideways, and somehow those are still the best memories I have.",
+      "Talking to you was once a dream of mine AZEEEN. I just hope my dream of marrying you comes true too.",
   },
   {
     id: 7,
     number: "07",
-    title: "Unspoken",
+    title: "The Someday",
     message:
-      "Some things I don't say enough — how proud I am of you, how much you matter, how far you've come.",
+      "Someday, I hope these wishes won't live on a screen. I hope I'll be right there, sitting beside you, watching you smile as I say them myself.",
   },
   {
     id: 8,
     number: "08",
-    title: "Happy Birthday",
+    title: "The Memories We Haven't Made",
     message:
-      "Here's to you, Azeen. To the version of you that exists now, and the one still becoming.",
+      "I hope some of my favorite memories with you are still waiting for us somewhere in the future. The ones we haven't even imagined yet.",
   },
 ];
