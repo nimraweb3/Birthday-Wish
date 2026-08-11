@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { MoreVertical, Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import { AnimatePresence, motion, useDragControls, type PanInfo } from "framer-motion";
+import { GripVertical, MoreVertical, RotateCcw, Play, Pause, SkipBack, SkipForward } from "lucide-react";
+
+const STORAGE_KEY = "birthday-player-position";
+const PLAYER_WIDTH = 320;
+const PLAYER_HEIGHT = 158;
 
 const YOUTUBE_PLAYLIST_ID = "PLY27-o_1nQvM";
+
+interface Position {
+  x: number;
+  y: number;
+}
 
 declare global {
   interface Window {
@@ -11,7 +20,30 @@ declare global {
   }
 }
 
-// formatTime removed (unused for inline-only player)
+function getDefaultPosition(): Position {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  return {
+    x: Math.max(16, width - PLAYER_WIDTH - 24),
+    y: Math.max(16, height - PLAYER_HEIGHT - 24),
+  };
+}
+
+function clampPosition(pos: Position): Position {
+  const maxX = window.innerWidth - PLAYER_WIDTH - 8;
+  const maxY = window.innerHeight - PLAYER_HEIGHT - 8;
+  return {
+    x: Math.min(Math.max(pos.x, 8), Math.max(maxX, 8)),
+    y: Math.min(Math.max(pos.y, 8), Math.max(maxY, 8)),
+  };
+}
+
+function formatTime(seconds: number): string {
+  if (!isFinite(seconds) || seconds < 0) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
+  return mins + ":" + secs;
+}
 
 interface CurrentVideo {
   videoId: string;
@@ -24,6 +56,7 @@ interface MusicPlayerProps {
 }
 
 export default function MusicPlayer({ inline = false }: MusicPlayerProps) {
+  const dragControls = useDragControls();
   const containerElRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -54,6 +87,18 @@ export default function MusicPlayer({ inline = false }: MusicPlayerProps) {
   const playlistRef = useRef<HTMLDivElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  const [pos, setPos] = useState<Position>(function () {
+    if (typeof window === "undefined") return { x: 24, y: 24 };
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return clampPosition(JSON.parse(saved) as Position);
+      }
+    } catch (err) {
+      console.error("Failed to read player position:", err);
+    }
+    return clampPosition(getDefaultPosition());
+  });
 
   function refreshVideoData() {
     if (!playerRef.current || !playerRef.current.getVideoData) return;
@@ -179,6 +224,12 @@ export default function MusicPlayer({ inline = false }: MusicPlayerProps) {
   }, []);
 
   useEffect(function () {
+    function handleResize() {
+      setPos(function (prev) {
+        return clampPosition(prev);
+      });
+    }
+
     function handleDocumentClick(e: MouseEvent | TouchEvent) {
       const target = e.target as HTMLElement;
       if (playlistOpenRef.current && playlistRef.current && menuButtonRef.current) {
@@ -194,17 +245,39 @@ export default function MusicPlayer({ inline = false }: MusicPlayerProps) {
       }
     }
 
+    window.addEventListener("resize", handleResize);
     window.addEventListener("mousedown", handleDocumentClick);
     window.addEventListener("touchstart", handleDocumentClick);
     window.addEventListener("keydown", handleDocumentKeydown);
     return function () {
+      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousedown", handleDocumentClick);
       window.removeEventListener("touchstart", handleDocumentClick);
       window.removeEventListener("keydown", handleDocumentKeydown);
     };
   }, []);
 
-  // floating player removed: position/drag helpers are no longer needed
+  function savePosition(next: Position) {
+    setPos(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch (err) {
+      console.error("Failed to save player position:", err);
+    }
+  }
+
+  function handleDragEnd(_e: unknown, info: PanInfo) {
+    savePosition(clampPosition({ x: pos.x + info.offset.x, y: pos.y + info.offset.y }));
+  }
+
+  function handleReset() {
+    savePosition(clampPosition(getDefaultPosition()));
+  }
+
+  function startDrag(e: React.PointerEvent) {
+    if (inline) return;
+    dragControls.start(e);
+  }
 
   function handlePlayPause() {
     if (!playerRef.current || !window.YT) return;
@@ -387,6 +460,145 @@ export default function MusicPlayer({ inline = false }: MusicPlayerProps) {
       </div>
     );
   }
-  // floating draggable player removed; inline player is used in Navbar
-  return null;
+
+  return (
+    <motion.div
+      drag
+      dragListener={false}
+      dragControls={dragControls}
+      dragMomentum={false}
+      onDragEnd={handleDragEnd}
+      initial={false}
+      animate={{ x: pos.x, y: pos.y }}
+      transition={{ type: "spring", stiffness: 400, damping: 40 }}
+      style={{ position: "fixed", top: 0, left: 0, width: PLAYER_WIDTH }}
+      className="z-30"
+    >
+      <div className="relative rounded-2xl border border-white/10 bg-charcoal-900/70 backdrop-blur-md shadow-glow">
+        <div
+          onPointerDown={startDrag}
+          className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing bg-white/5 rounded-t-2xl touch-none select-none"
+        >
+          <div className="flex items-center gap-1.5 text-white/40">
+            <GripVertical size={14} />
+            <span className="text-[10px] tracking-[0.15em] font-sans">DRAG</span>
+          </div>
+          <button
+            type="button"
+            onPointerDown={function (e) {
+              e.stopPropagation();
+            }}
+            onClick={function (e) {
+              e.stopPropagation();
+              handleReset();
+            }}
+            aria-label="Reset player position"
+            className="p-1 rounded-full hover:bg-rose-500/20 transition-colors duration-300 text-white/50 hover:text-rose-300"
+          >
+            <RotateCcw size={13} />
+          </button>
+        </div>
+
+        <div className="px-4 py-3 flex items-center gap-3">
+          <div
+            className="w-12 h-12 rounded-xl flex-shrink-0 border border-white/10 bg-cover bg-center bg-charcoal-800"
+            style={{
+              backgroundImage: video.videoId
+                ? "url(https://i.ytimg.com/vi/" + video.videoId + "/hqdefault.jpg)"
+                : "none",
+            }}
+          />
+
+          <div className="flex-1 min-w-0">
+            <p className="font-sans text-sm text-white/85 truncate">{video.title}</p>
+            <p className="font-sans text-[11px] text-white/40 truncate mt-0.5">{video.author}</p>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onPointerDown={function (e) {
+                e.stopPropagation();
+              }}
+              onClick={function (e) {
+                e.stopPropagation();
+                handlePrev();
+              }}
+              disabled={!ready}
+              aria-label="Previous song"
+              className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-300 text-white/60 disabled:opacity-30"
+            >
+              <SkipBack size={14} fill="currentColor" />
+            </button>
+
+            <button
+              type="button"
+              onPointerDown={function (e) {
+                e.stopPropagation();
+              }}
+              onClick={function (e) {
+                e.stopPropagation();
+                handlePlayPause();
+              }}
+              disabled={!ready}
+              aria-label={isPlaying ? "Pause" : "Play"}
+              className="p-2 rounded-full bg-rose-500/90 hover:bg-rose-400 transition-colors duration-300 text-white disabled:opacity-40"
+            >
+              {isPlaying ? <Pause size={15} fill="currentColor" /> : <Play size={15} fill="currentColor" />}
+            </button>
+
+            <button
+              type="button"
+              onPointerDown={function (e) {
+                e.stopPropagation();
+              }}
+              onClick={function (e) {
+                e.stopPropagation();
+                handleNext();
+              }}
+              disabled={!ready}
+              aria-label="Next song"
+              className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-300 text-white/60 disabled:opacity-30"
+            >
+              <SkipForward size={14} fill="currentColor" />
+            </button>
+
+            <div className="relative">
+              <button
+                type="button"
+                ref={menuButtonRef}
+                onPointerDown={function (e) {
+                  e.stopPropagation();
+                }}
+                onClick={handleTogglePlaylist}
+                aria-label="Open playlist"
+                className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-300 text-white/60"
+              >
+                <MoreVertical size={14} />
+              </button>
+              {playlistDropdown}
+            </div>
+          </div>
+        </div>
+
+        <div className="px-4 pb-3">
+          <div
+            onClick={handleSeekClick}
+            className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden cursor-pointer"
+          >
+            <div
+              className="h-full bg-rose-400 transition-all duration-200"
+              style={{ width: progressPercent + "%" }}
+            />
+          </div>
+          <div className="flex justify-between mt-1">
+            <span className="text-[10px] text-white/35 font-sans">{formatTime(currentTime)}</span>
+            <span className="text-[10px] text-white/35 font-sans">{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        <div ref={containerElRef} className="absolute -left-[9999px] w-px h-px" aria-hidden="true" />
+      </div>
+    </motion.div>
+  );
 }

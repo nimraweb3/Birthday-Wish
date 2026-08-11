@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Maximize, Minimize } from "lucide-react";
 import InstagramIcon from "./icons/InstagramIcon";
-import MusicPlayer from "./MusicPlayer";
 import { useFullscreen } from "../hooks/useFullscreen";
+import MusicPlayer from "./MusicPlayer";
 
 interface NavbarProps {
   instagramUrl: string;

@@ -3,8 +3,8 @@ import Navbar from "./components/Navbar";
 import BirthdayIntro from "./components/BirthdayIntro";
 import BirthdayBackground from "./components/BirthdayBackground";
 import Hero from "./components/Hero";
-import MusicPlayer from "./components/MusicPlayer";
 import MemoryTicker from "./components/MemoryTicker";
+import ScrollAudio from "./components/ScrollAudio";
 
 function App() {
   const [introDone, setIntroDone] = useState(false);
@@ -26,7 +26,7 @@ function App() {
           <Navbar instagramUrl="https://instagram.com/azeen_username" />
           <Hero />
           <MemoryTicker />
-          <MusicPlayer />
+          <ScrollAudio />
         </>
       )}
     </div>
