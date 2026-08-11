@@ -1,45 +1,23 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-const PLAYER_WIDTH = 290;
-const PLAYER_HEIGHT = 90;
+const PLAYER_WIDTH = 320;
+const PLAYER_HEIGHT = 152;
+
+const SPOTIFY_URL =
+  "https://open.spotify.com/embed/playlist/566ebV0eFuOfNkvz5tVc9d?utm_source=generator";
 
 const MusicPlayer = () => {
-  const [isPlaying, setIsPlaying] =
-    useState(false);
+  const [position, setPosition] = useState({
+    x: window.innerWidth - PLAYER_WIDTH - 24,
+    y: window.innerHeight - PLAYER_HEIGHT - 24,
+  });
 
-  const [isExpanded, setIsExpanded] =
-    useState(false);
-
-  const [progress, setProgress] =
-    useState(35);
-
-  /*
-   * Position is stored as actual screen
-   * coordinates instead of relative movement.
-   */
-
-  const [position, setPosition] =
-    useState({
-      x: window.innerWidth - PLAYER_WIDTH - 20,
-      y: window.innerHeight - PLAYER_HEIGHT - 30,
-    });
-
-  /*
-   * =====================================
-   * LOAD SAVED POSITION
-   * =====================================
-   */
-
+  // Load saved position
   useEffect(() => {
-    const saved =
-      localStorage.getItem(
-        "birthday-player-position"
-      );
+    const saved = localStorage.getItem(
+      "birthday-spotify-position"
+    );
 
     if (!saved) return;
 
@@ -52,66 +30,44 @@ const MusicPlayer = () => {
       });
     } catch {
       localStorage.removeItem(
-        "birthday-player-position"
+        "birthday-spotify-position"
       );
     }
   }, []);
 
-  /*
-   * =====================================
-   * KEEP PLAYER INSIDE SCREEN
-   * =====================================
-   */
-
+  // Keep player inside viewport
   const clampPosition = (
     x: number,
     y: number
   ) => {
-    const width =
-      window.innerWidth;
+    const maxX =
+      window.innerWidth -
+      PLAYER_WIDTH -
+      10;
 
-    const height =
-      window.innerHeight;
-
-    const playerWidth =
-      isExpanded
-        ? PLAYER_WIDTH
-        : PLAYER_WIDTH;
-
-    const playerHeight =
-      isExpanded
-        ? 180
-        : PLAYER_HEIGHT;
+    const maxY =
+      window.innerHeight -
+      PLAYER_HEIGHT -
+      10;
 
     return {
       x: Math.max(
-        0,
-        Math.min(
-          x,
-          width - playerWidth
-        )
+        10,
+        Math.min(x, maxX)
       ),
 
       y: Math.max(
-        0,
-        Math.min(
-          y,
-          height - playerHeight
-        )
+        10,
+        Math.min(y, maxY)
       ),
     };
   };
 
-  /*
-   * =====================================
-   * DRAG END
-   * =====================================
-   */
-
+  // Save new position after dragging
   const handleDragEnd = (
     _: MouseEvent | TouchEvent | PointerEvent,
     info: {
-      point: {
+      offset: {
         x: number;
         y: number;
       };
@@ -119,71 +75,57 @@ const MusicPlayer = () => {
   ) => {
     const nextPosition =
       clampPosition(
-        info.point.x -
-          PLAYER_WIDTH / 2,
-
-        info.point.y - 25
+        position.x + info.offset.x,
+        position.y + info.offset.y
       );
 
     setPosition(nextPosition);
 
     localStorage.setItem(
-      "birthday-player-position",
+      "birthday-spotify-position",
       JSON.stringify(nextPosition)
     );
   };
 
-  /*
-   * =====================================
-   * RESET
-   * =====================================
-   */
-
+  // Reset to bottom-right
   const resetPosition = () => {
     const nextPosition = {
       x:
         window.innerWidth -
         PLAYER_WIDTH -
-        20,
+        24,
 
       y:
         window.innerHeight -
         PLAYER_HEIGHT -
-        30,
+        24,
     };
 
     setPosition(nextPosition);
 
-    localStorage.setItem(
-      "birthday-player-position",
-      JSON.stringify(nextPosition)
+    localStorage.removeItem(
+      "birthday-spotify-position"
     );
   };
-
-  /*
-   * =====================================
-   * RENDER
-   * =====================================
-   */
 
   return (
     <motion.div
       drag
-
       dragMomentum={false}
-
-      dragElastic={0}
+      dragElastic={0.08}
 
       dragConstraints={{
-        left: 0,
-        top: 0,
+        left: 10,
         right:
           window.innerWidth -
-          PLAYER_WIDTH,
+          PLAYER_WIDTH -
+          10,
 
+        top: 10,
         bottom:
           window.innerHeight -
-          PLAYER_HEIGHT,
+          PLAYER_HEIGHT -
+          10,
       }}
 
       onDragEnd={handleDragEnd}
@@ -195,385 +137,153 @@ const MusicPlayer = () => {
 
       transition={{
         type: "spring",
-
         stiffness: 500,
-
         damping: 35,
-
         mass: 0.6,
       }}
 
       style={{
         position: "fixed",
+        width: `${PLAYER_WIDTH}px`,
       }}
 
       className="
+        group
         z-[100]
 
-        w-[260px]
-        sm:w-[290px]
-
         cursor-grab
-
         active:cursor-grabbing
 
         select-none
+
+        touch-none
       "
     >
-
-      {/* =====================================
-          PLAYER
-      ===================================== */}
-
       <div
         className="
+          relative
+
           overflow-hidden
 
-          rounded-[22px]
+          rounded-[14px]
 
           border
           border-white/[0.12]
 
-          bg-black/65
+          bg-black/70
 
           shadow-[0_20px_60px_rgba(0,0,0,0.55)]
 
-          backdrop-blur-2xl
+          backdrop-blur-xl
         "
       >
-
-        {/* =================================
-            MAIN PLAYER
-        ================================= */}
+        {/* Drag handle */}
 
         <div
           className="
-            flex
+            absolute
+            left-1/2
+            top-1.5
 
-            items-center
+            z-20
 
-            gap-3
+            -translate-x-1/2
 
-            p-3
+            h-1
+            w-8
+
+            rounded-full
+
+            bg-white/20
+
+            opacity-0
+
+            transition
+
+            group-hover:opacity-100
+          "
+        />
+
+        {/* Spotify */}
+
+        <iframe
+          title="Azeen Birthday Playlist"
+
+          src={SPOTIFY_URL}
+
+          width="100%"
+
+          height="152"
+
+          frameBorder="0"
+
+          allowFullScreen
+
+          allow="
+            autoplay;
+            clipboard-write;
+            encrypted-media;
+            fullscreen;
+            picture-in-picture
+          "
+
+          loading="lazy"
+
+          className="
+            block
+
+            w-full
+
+            rounded-[12px]
+
+            border-0
+          "
+        />
+
+        {/* Reset button */}
+
+        <button
+          type="button"
+
+          onClick={resetPosition}
+
+          className="
+            absolute
+
+            right-2
+            top-2
+
+            z-30
+
+            rounded-full
+
+            bg-black/70
+
+            px-2
+            py-1
+
+            text-[8px]
+
+            uppercase
+
+            tracking-[0.15em]
+
+            text-white/40
+
+            opacity-0
+
+            transition-all
+
+            hover:bg-black/90
+
+            hover:text-white
+
+            group-hover:opacity-100
           "
         >
-
-          {/* Album */}
-
-          <div
-            className="
-              flex
-
-              h-11
-              w-11
-
-              shrink-0
-
-              items-center
-              justify-center
-
-              overflow-hidden
-
-              rounded-xl
-
-              bg-white/[0.07]
-
-              text-lg
-            "
-          >
-            🎵
-          </div>
-
-
-          {/* Song */}
-
-          <button
-            type="button"
-
-            onClick={() => {
-              setIsExpanded(
-                (value) => !value
-              );
-            }}
-
-            className="
-              min-w-0
-
-              flex-1
-
-              text-left
-            "
-          >
-
-            <p
-              className="
-                truncate
-
-                text-xs
-
-                font-medium
-
-                text-white
-              "
-            >
-              A little song for you
-            </p>
-
-            <p
-              className="
-                mt-1
-
-                truncate
-
-                text-[10px]
-
-                text-white/40
-              "
-            >
-              Your playlist
-            </p>
-
-          </button>
-
-
-          {/* Play */}
-
-          <button
-            type="button"
-
-            onClick={() => {
-              setIsPlaying(
-                (value) => !value
-              );
-            }}
-
-            className="
-              flex
-
-              h-9
-              w-9
-
-              shrink-0
-
-              items-center
-              justify-center
-
-              rounded-full
-
-              bg-white
-
-              text-xs
-
-              text-black
-
-              transition
-
-              hover:scale-105
-
-              active:scale-90
-            "
-          >
-            {isPlaying
-              ? "Ⅱ"
-              : "▶"}
-          </button>
-
-        </div>
-
-
-        {/* =================================
-            EXPANDED
-        ================================= */}
-
-        {isExpanded && (
-          <div
-            className="
-              border-t
-
-              border-white/[0.07]
-
-              px-4
-
-              pb-4
-
-              pt-3
-            "
-          >
-
-            {/* Progress */}
-
-            <input
-              type="range"
-
-              min="0"
-
-              max="100"
-
-              value={progress}
-
-              onChange={(event) => {
-                setProgress(
-                  Number(
-                    event.target.value
-                  )
-                );
-              }}
-
-              className="
-                h-1
-
-                w-full
-
-                cursor-pointer
-
-                appearance-none
-
-                rounded-full
-
-                bg-white/[0.10]
-
-                accent-white
-              "
-            />
-
-
-            <div
-              className="
-                mt-1
-
-                flex
-
-                justify-between
-
-                text-[8px]
-
-                text-white/30
-              "
-            >
-              <span>
-                1:24
-              </span>
-
-              <span>
-                3:42
-              </span>
-            </div>
-
-
-            {/* Controls */}
-
-            <div
-              className="
-                mt-3
-
-                flex
-
-                items-center
-
-                justify-center
-
-                gap-5
-              "
-            >
-
-              <button
-                type="button"
-
-                className="
-                  text-xs
-
-                  text-white/40
-
-                  hover:text-white
-                "
-              >
-                ↶
-              </button>
-
-
-              <button
-                type="button"
-
-                onClick={() => {
-                  setIsPlaying(
-                    (value) => !value
-                  );
-                }}
-
-                className="
-                  flex
-
-                  h-9
-                  w-9
-
-                  items-center
-                  justify-center
-
-                  rounded-full
-
-                  bg-white
-
-                  text-xs
-
-                  text-black
-                "
-              >
-                {isPlaying
-                  ? "Ⅱ"
-                  : "▶"}
-              </button>
-
-
-              <button
-                type="button"
-
-                className="
-                  text-xs
-
-                  text-white/40
-
-                  hover:text-white
-                "
-              >
-                ↷
-              </button>
-
-            </div>
-
-
-            {/* Reset */}
-
-            <button
-              type="button"
-
-              onClick={resetPosition}
-
-              className="
-                mx-auto
-
-                mt-4
-
-                block
-
-                text-[8px]
-
-                uppercase
-
-                tracking-[0.2em]
-
-                text-white/20
-
-                hover:text-white/50
-              "
-            >
-              reset position
-            </button>
-
-          </div>
-        )}
-
+          reset
+        </button>
       </div>
-
     </motion.div>
   );
 };
