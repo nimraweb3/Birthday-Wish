@@ -1,127 +1,22 @@
-import { motion } from "framer-motion";
-
-interface BirthdayBackgroundProps {
-  visible: boolean;
-}
-
-const BirthdayBackground = ({
-  visible,
-}: BirthdayBackgroundProps) => {
+export default function BirthdayBackground() {
   return (
-    <motion.div
-      initial={{
-        opacity: 0,
-        scale: 1.05,
-      }}
-      animate={{
-        opacity: visible ? 1 : 0,
-        scale: visible ? 1 : 1.05,
-      }}
-      transition={{
-        duration: 1.4,
-        ease: "easeInOut",
-      }}
-      className="
-        fixed
-        inset-0
-        z-0
-
-        overflow-hidden
-
-        bg-[#12090d]
-      "
-    >
-      {/* Friend's image */}
-
-      <motion.img
+    <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+      <img
         src="/friend.jpeg"
         alt=""
-        initial={{
-          scale: 1.08,
+        className="w-full h-full object-cover object-center scale-105"
+      />
+      <div className="absolute inset-0 bg-charcoal-950/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-charcoal-950 via-charcoal-950/40 to-charcoal-950/80" />
+      <div className="absolute inset-0 bg-gradient-radial-glow" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, transparent 40%, rgba(10, 8, 8, 0.6) 100%)",
         }}
-        animate={{
-          scale: 1,
-        }}
-        transition={{
-          duration: 8,
-          ease: "easeOut",
-        }}
-        className="
-          absolute
-          inset-0
-
-          h-full
-          w-full
-
-          object-cover
-        "
       />
-
-      {/* Dark cinematic overlay */}
-
-      <div
-        className="
-          absolute
-          inset-0
-
-          bg-black/45
-        "
-      />
-
-      {/* Rose tint */}
-
-      <div
-        className="
-          absolute
-          inset-0
-
-          bg-gradient-to-b
-          from-[#16090e]/55
-          via-transparent
-          to-[#10070a]/80
-        "
-      />
-
-      {/* Center glow */}
-
-      <div
-        className="
-          absolute
-          left-1/2
-          top-1/2
-
-          h-[500px]
-          w-[500px]
-
-          -translate-x-1/2
-          -translate-y-1/2
-
-          rounded-full
-
-          bg-rose-300/[0.08]
-
-          blur-[120px]
-        "
-      />
-
-      {/* Soft vignette */}
-
-      <div
-        className="
-          pointer-events-none
-
-          absolute
-          inset-0
-
-          bg-[radial-gradient(
-            circle_at_center,
-            transparent_20%,
-            rgba(0,0,0,0.55)_100%
-          )]
-        "
-      />
-    </motion.div>
+      <div className="absolute inset-0 backdrop-blur-[1px]" />
+    </div>
   );
-};
-
-export default BirthdayBackground;
+}

@@ -1,735 +1,141 @@
 import { useState } from "react";
-import {
-  motion,
-  AnimatePresence,
-} from "framer-motion";
+import { motion, AnimatePresence, type PanInfo } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { wishes } from "../data/wishes";
 
-interface Wish {
-  id: number;
-  title: string;
-  message: string;
-}
+const SWIPE_THRESHOLD = 80;
 
-const wishes: Wish[] = [
-  {
-    id: 1,
-    title: "Happy Birthday 🤍",
-    message:
-      "I hope this year brings you more happiness, more peace, and a lot of moments worth remembering.",
+const cardVariants = {
+  initial: (dir: number) => ({
+    opacity: 0,
+    x: dir > 0 ? 120 : -120,
+    scale: 0.94,
+    rotate: dir > 0 ? 6 : -6,
+  }),
+  animate: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    rotate: 0,
   },
-  {
-    id: 2,
-    title: "For You ✨",
-    message:
-      "May you always find reasons to smile, people who genuinely care, and little moments that make life beautiful.",
-  },
-  {
-    id: 3,
-    title: "Keep Shining 🌙",
-    message:
-      "Never forget how far you've come. There is so much more waiting for you ahead.",
-  },
-  {
-    id: 4,
-    title: "A Little Reminder 🫶",
-    message:
-      "You deserve good things, soft days, unexpected happiness, and people who make life feel lighter.",
-  },
-  {
-    id: 5,
-    title: "One More Year 🎂",
-    message:
-      "Here's to another chapter, another collection of memories, and hopefully a lot of reasons to laugh.",
-  },
-];
-
-const WishCards = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const [direction, setDirection] =
-    useState<1 | -1>(1);
-
-  const [isDragging, setIsDragging] =
-    useState(false);
-
-  const currentWish =
-    wishes[currentIndex];
-
-  /*
-   * =====================================
-   * CHANGE CARD
-   * =====================================
-   */
-
-  const changeCard = (
-    nextDirection: 1 | -1
-  ) => {
-    setDirection(nextDirection);
-
-    setCurrentIndex((previous) => {
-      if (nextDirection === 1) {
-        return (
-          (previous + 1) %
-          wishes.length
-        );
-      }
-
-      return (
-        (previous - 1 + wishes.length) %
-        wishes.length
-      );
-    });
-  };
-
-  /*
-   * =====================================
-   * CARD CLICK
-   * =====================================
-   */
-
-  const handleCardClick = () => {
-    /*
-     * If the user dragged the card,
-     * don't treat it as a click.
-     */
-
-    if (isDragging) {
-      return;
-    }
-
-    changeCard(1);
-  };
-
-  /*
-   * =====================================
-   * DRAG START
-   * =====================================
-   */
-
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  /*
-   * =====================================
-   * DRAG END
-   * =====================================
-   */
-
-  const handleDragEnd = (
-    _: MouseEvent | TouchEvent | PointerEvent,
-    info: {
-      offset: {
-        x: number;
-      };
-
-      velocity: {
-        x: number;
-      };
-    }
-  ) => {
-    /*
-     * Give React a moment before allowing
-     * click to fire.
-     */
-
-    setTimeout(() => {
-      setIsDragging(false);
-    }, 50);
-
-    const distance =
-      Math.abs(info.offset.x);
-
-    const velocity =
-      Math.abs(info.velocity.x);
-
-    /*
-     * Small movement = don't change card.
-     */
-
-    if (
-      distance < 80 &&
-      velocity < 400
-    ) {
-      return;
-    }
-
-    /*
-     * Drag right = next.
-     */
-
-    if (info.offset.x > 0) {
-      changeCard(1);
-      return;
-    }
-
-    /*
-     * Drag left = previous.
-     */
-
-    changeCard(-1);
-  };
-
-  return (
-    <section
-      className="
-        relative
-
-        flex
-        min-h-screen
-
-        items-center
-        justify-center
-
-        px-5
-
-        pb-28
-        pt-28
-      "
-    >
-      {/* =====================================
-          CARD CONTAINER
-      ====================================== */}
-
-      <div
-        className="
-          relative
-
-          w-full
-          max-w-[620px]
-
-          overflow-visible
-        "
-      >
-
-        <AnimatePresence
-          initial={false}
-          custom={direction}
-          mode="wait"
-        >
-
-          <motion.div
-            key={currentWish.id}
-
-            custom={direction}
-
-            variants={{
-              enter: (
-                direction: number
-              ) => ({
-                x:
-                  direction > 0
-                    ? 120
-                    : -120,
-
-                opacity: 0,
-
-                scale: 0.96,
-
-                rotate:
-                  direction > 0
-                    ? 2
-                    : -2,
-              }),
-
-              center: {
-                x: 0,
-
-                opacity: 1,
-
-                scale: 1,
-
-                rotate: 0,
-              },
-
-              exit: (
-                direction: number
-              ) => ({
-                x:
-                  direction > 0
-                    ? -120
-                    : 120,
-
-                opacity: 0,
-
-                scale: 0.96,
-
-                rotate:
-                  direction > 0
-                    ? -2
-                    : 2,
-              }),
-            }}
-
-            initial="enter"
-
-            animate="center"
-
-            exit="exit"
-
-            transition={{
-              duration: 0.42,
-
-              ease: [
-                0.22,
-                1,
-                0.36,
-                1,
-              ],
-            }}
-
-            drag="x"
-
-            dragConstraints={{
-              left: 0,
-              right: 0,
-            }}
-
-            dragElastic={0.35}
-
-            dragDirectionLock
-
-            dragMomentum={false}
-
-            onDragStart={
-              handleDragStart
-            }
-
-            onDragEnd={
-              handleDragEnd
-            }
-
-            onClick={
-              handleCardClick
-            }
-
-            whileTap={{
-              scale: 0.985,
-            }}
-
-            className="
-              relative
-
-              flex
-
-              h-[330px]
-              sm:h-[360px]
-
-              w-full
-
-              cursor-grab
-
-              flex-col
-
-              justify-between
-
-              overflow-hidden
-
-              rounded-[30px]
-
-              border
-              border-white/[0.13]
-
-              bg-black/50
-
-              p-7
-              sm:p-10
-
-              shadow-[0_35px_90px_rgba(0,0,0,0.55)]
-
-              backdrop-blur-xl
-
-              will-change-transform
-
-              active:cursor-grabbing
-            "
-          >
-
-            {/* =================================
-                BACKGROUND GLOW
-            ================================= */}
-
-            <div
-              className="
-                pointer-events-none
-
-                absolute
-
-                -right-24
-                -top-24
-
-                h-72
-                w-72
-
-                rounded-full
-
-                bg-rose-300/[0.09]
-
-                blur-[90px]
-              "
-            />
-
-            <div
-              className="
-                pointer-events-none
-
-                absolute
-
-                -bottom-32
-                -left-20
-
-                h-64
-                w-64
-
-                rounded-full
-
-                bg-pink-300/[0.05]
-
-                blur-[80px]
-              "
-            />
-
-            {/* =================================
-                TOP
-            ================================= */}
-
-            <div
-              className="
-                relative
-                z-10
-              "
-            >
-
-              <div
-                className="
-                  flex
-
-                  items-center
-
-                  justify-between
-                "
-              >
-
-                <p
-                  className="
-                    text-[9px]
-
-                    uppercase
-
-                    tracking-[0.35em]
-
-                    text-rose-200/55
-                  "
-                >
-                  {String(
-                    currentIndex + 1
-                  ).padStart(2, "0")}
-
-                  {" / "}
-
-                  {String(
-                    wishes.length
-                  ).padStart(2, "0")}
-                </p>
-
-                <span
-                  className="
-                    text-lg
-
-                    text-white/20
-                  "
-                >
-                  ♡
-                </span>
-
-              </div>
-
-              <h2
-                className="
-                  mt-5
-
-                  text-3xl
-                  sm:text-4xl
-
-                  font-semibold
-
-                  tracking-[-0.035em]
-
-                  text-white
-                "
-              >
-                {currentWish.title}
-              </h2>
-
-            </div>
-
-            {/* =================================
-                MESSAGE
-            ================================= */}
-
-            <p
-              className="
-                relative
-                z-10
-
-                max-w-xl
-
-                text-sm
-                sm:text-base
-
-                leading-7
-
-                text-white/60
-              "
-            >
-              {currentWish.message}
-            </p>
-
-            {/* =================================
-                BOTTOM
-            ================================= */}
-
-            <div
-              className="
-                relative
-                z-10
-
-                flex
-
-                items-center
-
-                justify-between
-              "
-            >
-
-              <span
-                className="
-                  text-[9px]
-
-                  uppercase
-
-                  tracking-[0.3em]
-
-                  text-white/25
-                "
-              >
-                tap to continue
-              </span>
-
-              <div
-                className="
-                  flex
-
-                  items-center
-
-                  gap-2
-                "
-              >
-
-                <span
-                  className="
-                    h-px
-
-                    w-10
-
-                    bg-white/[0.08]
-                  "
-                />
-
-                <span
-                  className="
-                    text-xs
-
-                    text-white/30
-                  "
-                >
-                  →
-                </span>
-
-              </div>
-
-            </div>
-
-          </motion.div>
-
-        </AnimatePresence>
-
-      </div>
-
-      {/* =====================================
-          NAVIGATION
-      ====================================== */}
-
-      <div
-        className="
-          absolute
-
-          bottom-8
-
-          left-1/2
-
-          flex
-
-          -translate-x-1/2
-
-          items-center
-
-          gap-5
-        "
-      >
-
-        {/* =================================
-            PREVIOUS BUTTON
-        ================================= */}
-
-        <button
-          type="button"
-
-          onClick={() => {
-            changeCard(-1);
-          }}
-
-          className="
-            flex
-
-            h-11
-            w-11
-
-            items-center
-            justify-center
-
-            rounded-full
-
-            border
-            border-white/[0.10]
-
-            bg-black/30
-
-            text-white/60
-
-            backdrop-blur-xl
-
-            transition-all
-            duration-300
-
-            hover:scale-105
-
-            hover:border-white/[0.18]
-
-            hover:bg-white/[0.08]
-
-            hover:text-white
-
-            active:scale-90
-          "
-          aria-label="Previous wish"
-        >
-          ←
-        </button>
-
-        {/* =================================
-            DOTS
-        ================================= */}
-
-        <div
-          className="
-            flex
-
-            items-center
-
-            gap-1.5
-          "
-        >
-
-          {wishes.map(
-            (wish, index) => (
-              <motion.span
-                key={wish.id}
-
-                animate={{
-                  width:
-                    index ===
-                    currentIndex
-                      ? 20
-                      : 6,
-
-                  opacity:
-                    index ===
-                    currentIndex
-                      ? 0.7
-                      : 0.25,
-                }}
-
-                transition={{
-                  duration: 0.25,
-                }}
-
-                className="
-                  h-1.5
-
-                  rounded-full
-
-                  bg-white
-                "
-              />
-            )
-          )}
-
-        </div>
-
-        {/* =================================
-            NEXT BUTTON
-        ================================= */}
-
-        <button
-          type="button"
-
-          onClick={() => {
-            changeCard(1);
-          }}
-
-          className="
-            flex
-
-            h-11
-            w-11
-
-            items-center
-            justify-center
-
-            rounded-full
-
-            border
-            border-white/[0.10]
-
-            bg-black/30
-
-            text-white/60
-
-            backdrop-blur-xl
-
-            transition-all
-            duration-300
-
-            hover:scale-105
-
-            hover:border-white/[0.18]
-
-            hover:bg-white/[0.08]
-
-            hover:text-white
-
-            active:scale-90
-          "
-          aria-label="Next wish"
-        >
-          →
-        </button>
-
-      </div>
-
-    </section>
-  );
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: dir > 0 ? -120 : 120,
+    scale: 0.94,
+    rotate: dir > 0 ? -6 : 6,
+  }),
 };
 
-export default WishCards;
+export default function WishCards() {
+  const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  function goNext() {
+    setDirection(1);
+    setIndex(function (prev) {
+      return prev === wishes.length - 1 ? 0 : prev + 1;
+    });
+  }
+
+  function goPrev() {
+    setDirection(-1);
+    setIndex(function (prev) {
+      return prev === 0 ? wishes.length - 1 : prev - 1;
+    });
+  }
+
+  function handleDragEnd(_e: unknown, info: PanInfo) {
+    if (info.offset.x < -SWIPE_THRESHOLD) {
+      goNext();
+    } else if (info.offset.x > SWIPE_THRESHOLD) {
+      goPrev();
+    }
+  }
+
+  const current = wishes[index];
+
+  return (
+    <div className="relative w-full max-w-md mx-auto flex flex-col items-center px-4">
+      <div className="relative w-full h-[380px] sm:h-[420px]">
+        <AnimatePresence initial={false} custom={direction} mode="popLayout">
+          <motion.div
+            key={current.id}
+            custom={direction}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.6}
+            onDragEnd={handleDragEnd}
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ type: "spring", stiffness: 300, damping: 28 }}
+            whileTap={{ cursor: "grabbing" }}
+            className="absolute inset-0 cursor-grab rounded-3xl border border-white/10 bg-charcoal-900/40 backdrop-blur-md shadow-glow p-8 sm:p-10 flex flex-col justify-between touch-none select-none"
+          >
+            <div>
+              <span className="font-sans text-xs tracking-[0.3em] text-rose-400/70">
+                {current.number}
+              </span>
+              <h3 className="font-display text-3xl sm:text-4xl text-white mt-3">
+                {current.title}
+              </h3>
+            </div>
+
+            <p className="font-sans text-base sm:text-lg text-white/75 leading-relaxed">
+              {current.message}
+            </p>
+
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-400/30 to-transparent" />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="flex items-center gap-6 mt-6">
+        <button
+          type="button"
+          onPointerDown={function (e) {
+            e.stopPropagation();
+          }}
+          onClick={function (e) {
+            e.stopPropagation();
+            goPrev();
+          }}
+          aria-label="Previous wish"
+          className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-rose-500/20 hover:border-rose-400/40 transition-colors duration-300"
+        >
+          <ChevronLeft size={18} className="text-white/80" />
+        </button>
+
+        <div className="flex gap-1.5">
+          {wishes.map(function (w, i) {
+            return (
+              <span
+                key={w.id}
+                className={
+                  "h-1.5 rounded-full transition-all duration-300 " +
+                  (i === index ? "w-5 bg-rose-400" : "w-1.5 bg-white/25")
+                }
+              />
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onPointerDown={function (e) {
+            e.stopPropagation();
+          }}
+          onClick={function (e) {
+            e.stopPropagation();
+            goNext();
+          }}
+          aria-label="Next wish"
+          className="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-rose-500/20 hover:border-rose-400/40 transition-colors duration-300"
+        >
+          <ChevronRight size={18} className="text-white/80" />
+        </button>
+      </div>
+    </div>
+  );
+}

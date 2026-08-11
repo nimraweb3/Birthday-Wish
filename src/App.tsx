@@ -1,70 +1,33 @@
 import { useState } from "react";
-
+import Navbar from "./components/Navbar";
 import BirthdayIntro from "./components/BirthdayIntro";
 import BirthdayBackground from "./components/BirthdayBackground";
-import Navbar from "./components/Navbar";
-import WishCards from "./components/WishCards";
+import Hero from "./components/Hero";
 import MusicPlayer from "./components/MusicPlayer";
 
 function App() {
-  const [introFinished, setIntroFinished] =
-    useState(false);
+  const [introDone, setIntroDone] = useState(false);
 
   return (
-    <main
-      className="
-        relative
-        min-h-screen
-        overflow-x-hidden
-        bg-[#0c0708]
-      "
-    >
-      {/* =========================================
-          FRIEND PHOTO BACKGROUND
-      ========================================= */}
-
-      <BirthdayBackground
-        visible={introFinished}
-      />
-
-      {/* =========================================
-          MAIN WEBSITE
-      ========================================= */}
-
-      {introFinished && (
-        <div
-          className="
-            relative
-            z-10
-            min-h-screen
-          "
-        >
-          {/* NAVBAR */}
-
-          <Navbar />
-
-          {/* WISH CARDS */}
-
-          <WishCards />
-
-          {/* MUSIC PLAYER */}
-
-          <MusicPlayer />
-        </div>
-      )}
-
-      {/* =========================================
-          BIRTHDAY INTRO
-      ========================================= */}
-
-      {!introFinished && (
+    <div className="min-h-screen text-white">
+      {!introDone && (
         <BirthdayIntro
-          onComplete={() => {
-            setIntroFinished(true);
+          name="Azeen"
+          onComplete={function () {
+            setIntroDone(true);
           }}
         />
       )}
-    </main>
+
+      {introDone && (
+        <>
+          <BirthdayBackground />
+          <Navbar instagramUrl="https://instagram.com/azeen_username" />
+          <Hero />
+          <MusicPlayer />
+        </>
+      )}
+    </div>
   );
 }
 
