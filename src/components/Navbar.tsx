@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Maximize, Minimize } from "lucide-react";
 import InstagramIcon from "./icons/InstagramIcon";
+import MusicPlayer from "./MusicPlayer";
 import { useFullscreen } from "../hooks/useFullscreen";
 
 interface NavbarProps {
@@ -49,13 +50,19 @@ export default function Navbar(props: NavbarProps) {
       className="fixed top-0 left-0 right-0 z-40 px-4 sm:px-6 py-3"
     >
       <div className="max-w-5xl mx-auto flex items-center justify-between rounded-2xl border border-white/10 bg-charcoal-900/50 backdrop-blur-md px-4 sm:px-5 py-2.5 shadow-glow">
-        <div className="flex flex-col leading-tight select-none">
-          <span className="text-[11px] sm:text-xs tracking-[0.15em] text-white/60 font-sans">
-            {formatDate(now)}
-          </span>
-          <span className="text-sm sm:text-base font-display text-rose-400">
-            {formatTime(now)}
-          </span>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex flex-col leading-tight select-none">
+            <span className="text-[11px] sm:text-xs tracking-[0.15em] text-white/60 font-sans">
+              {formatDate(now)}
+            </span>
+            <span className="text-sm sm:text-base font-display text-rose-400">
+              {formatTime(now)}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex-1 flex justify-center px-2">
+          <MusicPlayer inline />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">

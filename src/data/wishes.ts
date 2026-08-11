@@ -37,6 +37,27 @@ export const wishes: Wish[] = [
   {
     id: 5,
     number: "05",
+    title: "The Laughs",
+    message:
+      "Nobody else gets my humor the way you do — or makes me laugh at 2am over something completely stupid.",
+  },
+  {
+    id: 6,
+    number: "06",
+    title: "The Chaos",
+    message:
+      "Every plan we've ever made has gone sideways, and somehow those are still the best memories I have.",
+  },
+  {
+    id: 7,
+    number: "07",
+    title: "Unspoken",
+    message:
+      "Some things I don't say enough — how proud I am of you, how much you matter, how far you've come.",
+  },
+  {
+    id: 8,
+    number: "08",
     title: "Happy Birthday",
     message:
       "Here's to you, Azeen. To the version of you that exists now, and the one still becoming.",

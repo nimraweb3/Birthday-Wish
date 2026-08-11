@@ -4,6 +4,7 @@ import BirthdayIntro from "./components/BirthdayIntro";
 import BirthdayBackground from "./components/BirthdayBackground";
 import Hero from "./components/Hero";
 import MusicPlayer from "./components/MusicPlayer";
+import MemoryTicker from "./components/MemoryTicker";
 
 function App() {
   const [introDone, setIntroDone] = useState(false);
@@ -24,6 +25,7 @@ function App() {
           <BirthdayBackground />
           <Navbar instagramUrl="https://instagram.com/azeen_username" />
           <Hero />
+          <MemoryTicker />
           <MusicPlayer />
         </>
       )}
