@@ -46,7 +46,7 @@ export default function MemoryTicker() {
                     return current === layoutId ? null : current;
                   });
                 }}
-                className="w-40 h-40 sm:w-56 sm:h-56 rounded-2xl object-cover border border-white/10 shadow-glow cursor-pointer"
+                className="w-64 h-36 sm:w-96 sm:h-52 rounded-2xl object-cover border border-white/10 shadow-glow cursor-pointer"
                 transition={{ type: "spring", stiffness: 260, damping: 28 }}
               />
             </div>
@@ -77,7 +77,7 @@ export default function MemoryTicker() {
                 setHoveredId(null);
               }}
               transition={{ type: "spring", stiffness: 220, damping: 26 }}
-              className="w-[min(80vw,80vh)] h-[min(80vw,80vh)] rounded-3xl border border-white/10 shadow-glow object-cover pointer-events-auto"
+              className="max-w-[90vw] max-h-[85vh] w-auto h-auto rounded-3xl border border-white/10 shadow-glow object-contain pointer-events-auto"
             />
           </motion.div>
         )}
